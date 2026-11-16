@@ -14,6 +14,9 @@ const UserList = lazy(() => import('./UserList'));
 function App() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  //Debouncing state
+  const [searchItem, setSearchItem] = useState('');
+  const [debouncingSearch, setDebouncingSearh] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -34,6 +37,24 @@ function App() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncingSearh(searchItem);
+      console.log('Searching:', searchItem);
+    }, 500)
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [searchItem])
+
+  const filterItem = users.filter((user) => {
+    const search = debouncingSearch.toLowerCase();
+
+    return (
+      user.firstName.toLowerCase().includes(search)
+    )
+  })
+
   const HandleUser = useCallback((action, user) => {
     if (action === 'add') {
       setUsers((prev) => [...prev, user]);
@@ -49,6 +70,18 @@ function App() {
   return (
     <div className="container">
       <h2>User Management</h2>
+      <div className="search-input-box">
+        <input
+          type="text"
+          placeholder='Searching...'
+          value={searchItem}
+          onChange={(e) => setSearchItem(e.target.value)}
+        />
+        <div>
+          <p>Result:- {filterItem.length}</p>
+
+        </div>
+      </div>
 
       {loading ? (
         <p className="loading">Loading users from API...</p>
