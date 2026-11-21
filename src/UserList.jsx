@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useContext } from 'react';
+import AuthContext from './context/AuthContext';
 
 const UserList = React.memo(({ onHandle, user }) => {
-  console.log('Rendering child:', user.firstName);
+    const {user:loginuser} = useContext(AuthContext);
 
   return (
     <div className="user">
@@ -11,9 +12,9 @@ const UserList = React.memo(({ onHandle, user }) => {
         <p>{user.email}</p>
       </div>
 
-      <button onClick={() => onHandle('remove', user)}>
+      {loginuser.role === "User"?(<button onClick={() => onHandle('remove', user)}>
         Delete
-      </button>
+      </button>):(<button>View</button>)}
     </div>
   );
 });

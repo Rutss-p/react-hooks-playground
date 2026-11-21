@@ -4,14 +4,21 @@ import {
   useEffect,
   useState,
   lazy,
-  Suspense
+  Suspense,
+  useContext
 } from 'react';
 
 import './App.css';
+import AuthContext from './context/AuthContext';
+import ThemeContext from './context/ThemeContext';
 
 const UserList = lazy(() => import('./UserList'));
 
 function App() {
+  const { user, setUser } = useContext(AuthContext);
+  const { theme, setTheme } = useContext(ThemeContext);
+  console.log("theme data", theme)
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   //Debouncing state
@@ -55,6 +62,11 @@ function App() {
     )
   })
 
+  //theme implementation
+  const toggleTheme = () => {
+    setTheme((prevTheme) => prevTheme === "light" ? 'dark' : 'light')
+  }
+
   const HandleUser = useCallback((action, user) => {
     if (action === 'add') {
       setUsers((prev) => [...prev, user]);
@@ -68,7 +80,7 @@ function App() {
   }, []);
 
   return (
-    <div className="container">
+    <div className="container" data-theme={theme}>
       <h2>User Management</h2>
       <div className="search-input-box">
         <input
@@ -79,9 +91,23 @@ function App() {
         />
         <div>
           <p>Result:- {filterItem.length}</p>
-
         </div>
+        <button onClick={() => setUser({ name: 'Satyajeet', role: 'User' })}>
+          Login user
+        </button>
+        <h2>{user.name}</h2>
+        <h2>{user.role}</h2>
       </div>
+      <h3>Theme {theme}</h3>
+      <button onClick={toggleTheme}>Switch the theme</button>
+      <label className='switching'>
+        <input
+        type='checkbox'
+        checked={theme==="light"}
+        onChange={toggleTheme}
+        />
+        <span className='slider'></span>
+      </label>
 
       {loading ? (
         <p className="loading">Loading users from API...</p>
